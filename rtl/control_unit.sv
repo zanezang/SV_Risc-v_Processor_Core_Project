@@ -42,13 +42,23 @@ module control_unit (
 
             // --- I-TYPE Load Instructions (lw) ---
             7'b0000011: begin
-                reg_write = 1'b0;
+                reg_write = 1'b1;
                 alu_src = 1'b1;
                 mem_write = 1'b0;
                 mem_to_reg = 1'b1;
                 branch = 1'b0;
                 alu_op = 2'b00;
                 // Think: Does a load write to registers? Does it use an immediate?
+            end
+
+            // --- I-TYPE Immediate Math Instructions (addi, andi, ori, xori) ---
+            7'b0010011: begin
+                reg_write = 1'b1;
+                alu_src = 1'b1;
+                mem_write = 1'b0;
+                mem_to_reg = 1'b0;
+                branch = 1'b0;
+                alu_op = 2'b00;
             end
 
             // --- S-TYPE Store Instructions (sw) ---

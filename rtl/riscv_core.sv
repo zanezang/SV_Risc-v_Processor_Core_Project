@@ -124,7 +124,7 @@ module riscv_core (
     assign pc_next = (branch & alu_zero) ? (pc_current + imm_ext) : pc_plus4; //??? eq check with logical unit and not subtract normally?
 
     // ALU Input Source Mux: 0 = Use Register Data 2, 1 = Use Sign-Extended Immediate
-    assign alu_operand_b = alu_src ? reg_data2 : imm_ext;
+    assign alu_operand_b = alu_src ? imm_ext : reg_data2;
 
     // Register Writeback Mux: 0 = Save ALU Math, 1 = Save Data Memory Read
     assign reg_write_data = mem_to_reg ? mem_read_data : alu_result;
