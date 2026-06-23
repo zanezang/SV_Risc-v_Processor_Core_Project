@@ -1,0 +1,217 @@
+$date
+	Tue Jun 23 10:45:42 2026
+$end
+$version
+	Icarus Verilog
+$end
+$timescale
+	1ps
+$end
+$scope module tb_riscv_core $end
+$var reg 1 ! clk $end
+$var reg 1 " rst_n $end
+$scope module uut $end
+$var wire 1 ! clk $end
+$var wire 32 # mem_read_data [31:0] $end
+$var wire 1 " rst_n $end
+$var wire 32 $ reg_write_data [31:0] $end
+$var wire 1 % reg_write $end
+$var wire 32 & reg_data2 [31:0] $end
+$var wire 32 ' reg_data1 [31:0] $end
+$var wire 32 ( pc_plus4 [31:0] $end
+$var wire 32 ) pc_next [31:0] $end
+$var wire 32 * pc_current [31:0] $end
+$var wire 1 + mem_write $end
+$var wire 1 , mem_to_reg $end
+$var wire 32 - inst [31:0] $end
+$var wire 32 . imm_ext [31:0] $end
+$var wire 1 / branch $end
+$var wire 1 0 alu_zero $end
+$var wire 1 1 alu_src $end
+$var wire 32 2 alu_result [31:0] $end
+$var wire 32 3 alu_operand_b [31:0] $end
+$var wire 4 4 alu_ctrl [3:0] $end
+$scope module u_alu $end
+$var wire 32 5 b [31:0] $end
+$var wire 1 0 zero $end
+$var wire 5 6 shift_amt [4:0] $end
+$var wire 4 7 alu_ctrl [3:0] $end
+$var wire 32 8 a [31:0] $end
+$var reg 32 9 result [31:0] $end
+$upscope $end
+$scope module u_control_unit $end
+$var wire 3 : funct3 [2:0] $end
+$var wire 1 ; funct7_b5 $end
+$var wire 7 < opcode [6:0] $end
+$var reg 4 = alu_ctrl [3:0] $end
+$var reg 2 > alu_op [1:0] $end
+$var reg 1 1 alu_src $end
+$var reg 1 / branch $end
+$var reg 1 , mem_to_reg $end
+$var reg 1 + mem_write $end
+$var reg 1 % reg_write $end
+$upscope $end
+$scope module u_imm_gen $end
+$var wire 32 ? inst [31:0] $end
+$var reg 32 @ imm_ext [31:0] $end
+$upscope $end
+$scope module u_instruction_mem $end
+$var wire 32 A instruction [31:0] $end
+$var wire 32 B pc_addr [31:0] $end
+$upscope $end
+$scope module u_program_counter $end
+$var wire 1 ! clk $end
+$var wire 32 C pc_next [31:0] $end
+$var wire 1 " rst_n $end
+$var reg 32 D pc_out [31:0] $end
+$upscope $end
+$scope module u_register_file $end
+$var wire 1 ! clk $end
+$var wire 5 E raddr1 [4:0] $end
+$var wire 5 F raddr2 [4:0] $end
+$var wire 1 % reg_write $end
+$var wire 1 " rst_n $end
+$var wire 5 G waddr [4:0] $end
+$var wire 32 H write_data [31:0] $end
+$var wire 32 I read_data2 [31:0] $end
+$var wire 32 J read_data1 [31:0] $end
+$scope begin $ivl_for_loop0 $end
+$var integer 32 K i [31:0] $end
+$upscope $end
+$upscope $end
+$upscope $end
+$upscope $end
+$enddefinitions $end
+$comment Show the parameter values. $end
+$dumpall
+$end
+#0
+$dumpvars
+b100000 K
+b0 J
+b0 I
+b0 H
+b1010 G
+b10010 F
+b110 E
+b0 D
+b100 C
+b0 B
+b1001000110100010101100111 A
+b0 @
+b1001000110100010101100111 ?
+b0 >
+b10 =
+b1100111 <
+0;
+b100 :
+b0 9
+b0 8
+b10 7
+b0 6
+b0 5
+b10 4
+b0 3
+b0 2
+01
+10
+0/
+b0 .
+b1001000110100010101100111 -
+0,
+0+
+b0 *
+b100 )
+b100 (
+b0 '
+b0 &
+0%
+b0 $
+b0 #
+0"
+0!
+$end
+#5000
+b100000 K
+1!
+#10000
+0!
+#15000
+b100000 K
+1!
+#20000
+0!
+1"
+#25000
+b11011 G
+b11010 F
+b10111 E
+b1101111 <
+b10001001101010111100110111101111 -
+b10001001101010111100110111101111 ?
+b10001001101010111100110111101111 A
+b1000 )
+b1000 C
+b1000 (
+b100 *
+b100 B
+b100 D
+1!
+#30000
+0!
+#35000
+b10111 G
+b1010 F
+b10101 E
+b11 :
+b111011 <
+b10101010101010101011101110111011 -
+b10101010101010101011101110111011 ?
+b10101010101010101011101110111011 A
+b1100 )
+b1100 C
+b1100 (
+b1000 *
+b1000 B
+b1000 D
+1!
+#40000
+0!
+#45000
+b11011 G
+b1100 F
+b11001 E
+1;
+b101 :
+b1011101 <
+b11001100110011001101110111011101 -
+b11001100110011001101110111011101 ?
+b11001100110011001101110111011101 A
+b10000 )
+b10000 C
+b10000 (
+b1100 *
+b1100 B
+b1100 D
+1!
+#50000
+0!
+#55000
+b100 G
+b10001 F
+b10 E
+0;
+b10 :
+b100010 <
+b10001000100010010001000100010 -
+b10001000100010010001000100010 ?
+b10001000100010010001000100010 A
+b10100 )
+b10100 C
+b10100 (
+b10000 *
+b10000 B
+b10000 D
+1!
+#60000
+0!
