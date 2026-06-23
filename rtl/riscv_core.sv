@@ -43,7 +43,7 @@ module riscv_core (
     // 2. MODULE INSTANTIATIONS (The Silicon Blocks)
     // ==========================================
 
-    // --- Placeholder: Program Counter (PC) Register ---
+    // --- Program Counter (PC) Register ---
     program_counter u_program_counter (
         .clk(clk),
         .rst_n(rst_n),
@@ -112,7 +112,14 @@ module riscv_core (
 
 
     // --- Placeholder: Data Memory (RAM) ---
-    // TODO: Connect your Data Memory block here later
+    data_mem u_data_mem (
+        .clk (clk),
+        .mem_write (mem_write),
+        .addr (alu_result),
+        .write_data (reg_data2),
+        .read_data (mem_read_data)
+    );
+    
     // Inputs: clk, alu_result (addr), reg_data2 (write data), mem_write (we)
     // Output: mem_read_data
 
@@ -128,9 +135,6 @@ module riscv_core (
 
     // Register Writeback Mux: 0 = Save ALU Math, 1 = Save Data Memory Read
     assign reg_write_data = mem_to_reg ? mem_read_data : alu_result;
-
-    // Temporary Data Memory Tie-off (Keeps compiler happy until you build RAM)
-    assign mem_read_data = 32'h0000_0000;
 
 
 endmodule
