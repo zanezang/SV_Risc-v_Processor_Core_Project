@@ -7,7 +7,8 @@ module control_unit (
     output logic       reg_write,   // 1 = Write to Register File
     output logic       alu_src,     // 0 = Use Reg Data 2, 1 = Use Immediate
     output logic       mem_write,   // 1 = Write to Data Memory (sw)
-    output logic       mem_to_reg,  // 0 = ALU result to Reg, 1 = Mem data to Reg
+    output logic       [1:0] reg_write_src,  // 00: ALU, 01: RAM, 10: PC + 4
+    output logic       [1:0] pc_src,        // 00: PC + 4, 01: Branch Mux, 10: JAL Mux, 11: JALR Mux
     output logic       branch,      // 1 = This is a branch instruction (beq)
     
     // ALU Specific Output
@@ -25,8 +26,9 @@ module control_unit (
         reg_write  = 1'b0;
         alu_src    = 1'b0;
         mem_write  = 1'b0;
-        mem_to_reg = 1'b0;
+        reg_write_src = 2'b00;
         branch     = 1'b0;
+        pc_src = 2'b00;
         alu_op     = 2'b00;
 
         case (opcode)
@@ -35,7 +37,7 @@ module control_unit (
                 reg_write  = 1'b1;
                 alu_src    = 1'b0; // Use register data 2
                 mem_write  = 1'b0;
-                mem_to_reg = 1'b0; // Take result from ALU
+                reg_write_src = 2'b00; // Take result from ALU
                 branch     = 1'b0;
                 alu_op     = 2'b10; // "Look at funct3/funct7 to decide math"
             end
@@ -45,7 +47,7 @@ module control_unit (
                 reg_write = 1'b1;
                 alu_src = 1'b1;
                 mem_write = 1'b0;
-                mem_to_reg = 1'b1;
+                reg_write_src = 2'b01;
                 branch = 1'b0;
                 alu_op = 2'b00;
                 // Think: Does a load write to registers? Does it use an immediate?
@@ -56,7 +58,7 @@ module control_unit (
                 reg_write = 1'b1;
                 alu_src = 1'b1;
                 mem_write = 1'b0;
-                mem_to_reg = 1'b0;
+                reg_write_src = 2'b00;
                 branch = 1'b0;
                 alu_op = 2'b00;
             end
@@ -66,7 +68,7 @@ module control_unit (
                 reg_write = 1'b0;
                 alu_src = 1'b1;
                 mem_write = 1'b1;
-                mem_to_reg = 1'b0;
+                reg_write_src = 2'b00;
                 branch = 1'b0;
                 alu_op = 2'b00;
                 // Think: Does a store write to registers? Does it write to memory?
@@ -77,7 +79,7 @@ module control_unit (
                 reg_write = 1'b0;
                 alu_src = 1'b0;
                 mem_write = 1'b0;
-                mem_to_reg = 1'b0;
+                reg_write_src = 2'b00;
                 branch = 1'b1;
                 alu_op = 2'b01;
                 // Think: Does it perform a subtraction to check for equality?
