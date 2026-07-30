@@ -18,8 +18,8 @@ module riscv_core (
     logic       reg_write;
     logic       alu_src;
     logic       mem_write;
-    logic       mem_to_reg;
-    logic       branch;
+    logic    [1:0]   reg_write_src;
+    logic    [1:0]   pc_src;
     logic [3:0] alu_ctrl;
 
     // Register File Wires
@@ -50,7 +50,6 @@ module riscv_core (
         .pc_next(pc_next),
         .pc_out(pc_current)
     );
-    // It should update 'pc_current <= pc_next' on clk edge when rst_n is high.
 
 
     // --- PC Adder ---
@@ -73,8 +72,8 @@ module riscv_core (
         .reg_write  (reg_write),
         .alu_src    (alu_src),
         .mem_write  (mem_write),
-        .mem_to_reg (mem_to_reg),
-        .branch     (branch),
+        .reg_write_src (reg_write_src),
+        .pc_src     (pc_src),
         .alu_ctrl   (alu_ctrl)
     );
 
@@ -127,14 +126,42 @@ module riscv_core (
     // 3. DATAPATH STEERING SWITCHES (Multiplexers)
     // ==========================================
     
-    // Next PC Mux: If (Branch Instruction AND ALU says inputs equal), jump! Otherwise PC + 4
-    assign pc_next = (branch & alu_zero) ? (pc_current + imm_ext) : pc_plus4; //??? eq check with logical unit and not subtract normally?
+    // Compute your distinct path targets
+    logic [31:0] pc_target;
+
+    assign pc_target = pc_current + imm_ext; // Relative offset target from immediate block
+
+    // 4-Way PC Generation Control Multiplexer
+    always_comb begin
+        case (pc_src)
+            2'b00:   pc_next = pc_plus4; // Standard sequential step
+            
+            2'b01:   begin // Branching Check Evaluation
+                if (alu_zero) pc_next = pc_target;
+                else                    pc_next = pc_plus4;
+            end
+            
+            2'b10:   pc_next = pc_target;  // JAL immediate jump wire
+            2'b11:   pc_next = alu_result & 32'hFFFF_FFFE;
+            default: pc_next = pc_plus4;
+        endcase
+    end
 
     // ALU Input Source Mux: 0 = Use Register Data 2, 1 = Use Sign-Extended Immediate
     assign alu_operand_b = alu_src ? imm_ext : reg_data2;
 
-    // Register Writeback Mux: 0 = Save ALU Math, 1 = Save Data Memory Read
-    assign reg_write_data = mem_to_reg ? mem_read_data : alu_result;
+    // Register Writeback Mux: 
+    always_comb begin
+        case (reg_write_src)
+            2'b00: reg_write_data = alu_result;
+
+            2'b01: reg_write_data = mem_read_data;
+
+            2'b10: reg_write_data = pc_plus4;
+
+            default: reg_write_data = alu_result;
+        endcase
+    end
 
 
 endmodule

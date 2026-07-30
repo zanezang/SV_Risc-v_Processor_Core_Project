@@ -26,6 +26,12 @@ module imm_gen (
                 imm_ext = { {19{inst[31]}}, inst[31], inst[7], inst[30:25], inst[11:8], 1'b0 };
             end
 
+            // --- J-TYPE (jal) ---
+            7'b1101111: begin
+                // Slices bits: Sign, imm[19:12], imm[11], imm[10:1], and sets hardwired 0 bit alignment
+                imm_ext = { {12{inst[31]}}, inst[19:12], inst[20], inst[30:21], 1'b0 };
+            end
+
             // --- DEFAULT FALLBACK ---
             default: begin
                 imm_ext = 32'h0000_0000; // Safe zero fallback to prevent latches

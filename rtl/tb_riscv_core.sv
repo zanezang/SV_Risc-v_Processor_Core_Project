@@ -44,13 +44,13 @@ module tb_riscv_core;
     // NOTE: If your register file array is named something other than 'rf' (like 'registers' or 'mem'),
     // change uut.u_reg_file.rf[...] to match your exact internal array variable name!
     initial begin
-        $monitor("Time=%-50t | PC=%h | Inst=%h | ALU_Res=%-3d | RegW=%b | MemToReg = %-2d | mem_write = %d | x1=%-2d | x3=%-2d | x5=%-2d | RAM[4]=%-2d | RAM[2]=%d | arrindex=%d", 
+        $monitor("Time=%-50t | PC=%h | Inst=%h | ALU_Res=%-3d | RegW=%b | mem_write_src = %-2d | mem_write = %d | x1=%-2d | x3=%-2d | x5=%-2d | RAM[4]=%-2d | RAM[2]=%d | arrindex=%d", 
                  $time, 
                  uut.pc_current, 
                  uut.inst, 
                  uut.alu_result, 
                  uut.reg_write,
-                 uut.mem_to_reg,
+                 uut.reg_write_src,
                  uut.mem_write,
                  uut.u_register_file.rf[1],  // Hierarchical spy: Destination register
                  uut.u_register_file.rf[3],  // Hierarchical spy: Comparison register
