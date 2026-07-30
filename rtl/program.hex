@@ -1,11 +1,3 @@
-00A00093
-00400113
-002081b3
-40208233
-00302823
-01002283
-FC5180E3
-00000013
 00800093    // addi x1, x0, 8   -> Load subroutine destination pointer offset
 00C000EF    // jal x1, 12       -> Jumps 12 bytes forward to subroutine, links return to x1
 00500113    // addi x2, x0, 5   -> TRAP LINE: If jump fails, this loads a 5 instead of an 8
