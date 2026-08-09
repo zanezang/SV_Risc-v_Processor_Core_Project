@@ -58,7 +58,7 @@ module control_unit (
                 mem_write = 1'b0;
                 reg_write_src = 2'b00;
                 pc_src = 2'b00;
-                alu_op = 2'b00;
+                alu_op = 2'b10;
             end
 
             // --- S-TYPE Store Instructions (sw) ---
@@ -120,7 +120,14 @@ module control_unit (
         case (alu_op)
             2'b00: alu_ctrl = 4'b0010; // Force ADD (Used for address calculations in lw/sw)
             
-            2'b01: alu_ctrl = 4'b0110; // Force SUB (Used for pc_srces like beq)
+            2'b01: 
+                case (funct3)
+                    3'b000, 3'b001: alu_ctrl = 4'b0110; // BEQ / BNE (SUB)
+                    3'b100, 3'b101: alu_ctrl = 4'b0111; // BLT / BGE (Signed Compare)
+                    3'b110, 3'b111: alu_ctrl = 4'b1000; // BLTU / BGEU (Unsigned Compare)
+                    default:        alu_ctrl = 4'b0110;
+                endcase
+
             
             2'b10: begin // R-Type Instructions: Must closely inspect funct3 and funct7
                 case (funct3)
