@@ -1,0 +1,33 @@
+# ==============================================================================
+# RISC-V RV32I Processor Core Makefile
+# ==============================================================================
+
+# 1. Variables / Configuration Macros
+SIMULATOR = iverilog
+FLAGS     = -g2012
+RTL_SRCS  = rtl/*.sv
+TB_SRC    = tb/tb_riscv_core.sv
+SIM_OUT   = cpu_sim
+WAVE_FILE = cpu_simulation.vcd
+
+# Declare phony targets (targets that aren't actual physical files)
+.PHONY: all compile run waves clean
+
+# Default target executed when typing just 'make'
+all: run
+
+# Target 1: Compile SystemVerilog design and testbench
+compile: $(RTL_SRCS) $(TB_SRC)
+	$(SIMULATOR) $(FLAGS) -o $(SIM_OUT) $(RTL_SRCS) $(TB_SRC)  
+
+# Target 2: Run VVP simulator engine
+run: compile
+	vvp $(SIM_OUT)
+
+# Target 3: Launch GTKWave viewer to inspect signal traces
+waves: run
+	gtkwave $(WAVE_FILE) &
+
+# Target 4: Remove compiled binaries and waveform logs
+clean:
+	rm -f $(SIM_OUT) $(WAVE_FILE)

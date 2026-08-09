@@ -8,7 +8,7 @@ module instruction_mem (
 
     // Read the compiled machine code text file automatically at simulation startup
     initial begin
-        $readmemh("program.hex", mem_array);
+        $readmemh("hex/program.hex", mem_array);
     end
 
     // Word-addressing alignment layout: 

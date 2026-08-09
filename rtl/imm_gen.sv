@@ -1,41 +1,39 @@
 module imm_gen (
-    input  logic [31:0] inst,       // Raw 32-bit instruction from memory
-    output logic [31:0] imm_ext     // 32-bit sign-extended constant output
+    input  logic [31:0] inst,
+    output logic [31:0] imm_ext
 );
 
+    logic [6:0] opcode;
+    assign opcode = inst[6:0];
+
     always_comb begin
-        case (inst[6:0]) // Read the 7-bit opcode to see how the bits are arranged
-            
-            // --- I-TYPE (addi, lw) ---
-            // Immediates are cleanly packed in bits [31:20]
-            7'b0010011, // addi
-            7'b0000011: begin // lw
-                imm_ext = { {20{inst[31]}}, inst[31:20] };
+        case (opcode)
+            // --- I-TYPE (addi, andi, lw, jalr, slti) ---
+            7'b0010011, 7'b0000011, 7'b1100111: begin
+                imm_ext = {{20{inst[31]}}, inst[31:20]};
             end
 
             // --- S-TYPE (sw) ---
-            // Immediates are split into [31:25] and [11:7]
             7'b0100011: begin
-                imm_ext = { {20{inst[31]}}, inst[31:25], inst[11:7] };
+                imm_ext = {{20{inst[31]}}, inst[31:25], inst[11:7]};
             end
 
-            // --- B-TYPE (beq) ---
-            // Scrambled layout: inst[31]=sign, inst[7]=bit 11, inst[30:25]=bits 10:5, inst[11:8]=bits 4:1
-            // Note: Conditional branches always jump by multiples of 2, so bit 0 is implicitly 1'b0!
+            // --- B-TYPE (beq, bne, blt, bge, bltu, bgeu) ---
             7'b1100011: begin
-                imm_ext = { {19{inst[31]}}, inst[31], inst[7], inst[30:25], inst[11:8], 1'b0 };
+                imm_ext = {{20{inst[31]}}, inst[7], inst[30:25], inst[11:8], 1'b0};
+            end
+
+            // --- U-TYPE (lui, auipc) ---
+            7'b0110011, 7'b0010011: begin
+                imm_ext = {inst[31:12], 12'b0};
             end
 
             // --- J-TYPE (jal) ---
             7'b1101111: begin
-                // Slices bits: Sign, imm[19:12], imm[11], imm[10:1], and sets hardwired 0 bit alignment
-                imm_ext = { {12{inst[31]}}, inst[19:12], inst[20], inst[30:21], 1'b0 };
+                imm_ext = {{12{inst[31]}}, inst[19:12], inst[20], inst[30:21], 1'b0};
             end
 
-            // --- DEFAULT FALLBACK ---
-            default: begin
-                imm_ext = 32'h0000_0000; // Safe zero fallback to prevent latches
-            end
+            default: imm_ext = 32'd0;
         endcase
     end
 
