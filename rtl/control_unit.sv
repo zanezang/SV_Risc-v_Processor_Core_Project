@@ -7,8 +7,14 @@ module control_unit (
     output logic       reg_write,   // 1 = Write to Register File
     output logic       alu_src,     // 0 = Use Reg Data 2; 1 = Use Immediate
     output logic       mem_write,   // 1 = Write to Data Memory (sw)
+<<<<<<< HEAD
     output logic [1:0]     reg_write_src,  // 00 = ALU Output; 01 = Memory; 10 = PC+4 (jal)
     output logic [1:0]      pc_src,      // 00 = pc+4; 01 = branch; 10 = jal; 11 = jalr (alu)
+=======
+    output logic       [1:0] reg_write_src,  // 00: ALU, 01: RAM, 10: PC + 4
+    output logic       [1:0] pc_src,        // 00: PC + 4, 01: Branch Mux, 10: JAL Mux, 11: JALR Mux
+    output logic       branch,      // 1 = This is a branch instruction (beq)
+>>>>>>> eb6adb9de4c19e453f2edf96f7f30f00b5b78519
     
     // ALU Specific Output
     output logic [3:0] alu_ctrl     // 4-bit code sent directly to your ALU
@@ -26,7 +32,12 @@ module control_unit (
         alu_src    = 1'b0;
         mem_write  = 1'b0;
         reg_write_src = 2'b00;
+<<<<<<< HEAD
         pc_src     = 2'b00;
+=======
+        branch     = 1'b0;
+        pc_src = 2'b00;
+>>>>>>> eb6adb9de4c19e453f2edf96f7f30f00b5b78519
         alu_op     = 2'b00;
 
         case (opcode)
@@ -36,7 +47,11 @@ module control_unit (
                 alu_src    = 1'b0; // Use register data 2
                 mem_write  = 1'b0;
                 reg_write_src = 2'b00; // Take result from ALU
+<<<<<<< HEAD
                 pc_src     = 2'b00;
+=======
+                branch     = 1'b0;
+>>>>>>> eb6adb9de4c19e453f2edf96f7f30f00b5b78519
                 alu_op     = 2'b10; // "Look at funct3/funct7 to decide math"
             end
 
@@ -46,7 +61,11 @@ module control_unit (
                 alu_src = 1'b1;
                 mem_write = 1'b0;
                 reg_write_src = 2'b01;
+<<<<<<< HEAD
                 pc_src = 2'b00;
+=======
+                branch = 1'b0;
+>>>>>>> eb6adb9de4c19e453f2edf96f7f30f00b5b78519
                 alu_op = 2'b00;
                 // Think: Does a load write to registers? Does it use an immediate?
             end
@@ -57,8 +76,13 @@ module control_unit (
                 alu_src = 1'b1;
                 mem_write = 1'b0;
                 reg_write_src = 2'b00;
+<<<<<<< HEAD
                 pc_src = 2'b00;
                 alu_op = 2'b10;
+=======
+                branch = 1'b0;
+                alu_op = 2'b00;
+>>>>>>> eb6adb9de4c19e453f2edf96f7f30f00b5b78519
             end
 
             // --- S-TYPE Store Instructions (sw) ---
@@ -66,8 +90,13 @@ module control_unit (
                 reg_write = 1'b0;
                 alu_src = 1'b1;
                 mem_write = 1'b1;
+<<<<<<< HEAD
                 reg_write_src = 2'b01;
                 pc_src = 2'b00;
+=======
+                reg_write_src = 2'b00;
+                branch = 1'b0;
+>>>>>>> eb6adb9de4c19e453f2edf96f7f30f00b5b78519
                 alu_op = 2'b00;
                 // Think: Does a store write to registers? Does it write to memory?
             end
@@ -77,8 +106,14 @@ module control_unit (
                 reg_write = 1'b0;
                 alu_src = 1'b0;
                 mem_write = 1'b0;
+<<<<<<< HEAD
                 reg_write_src = 2'b00; // don't care
                 pc_src = 2'b01; //branch
+=======
+                reg_write_src = 2'b00;
+                branch = 1'b1;
+                alu_op = 2'b01;
+>>>>>>> eb6adb9de4c19e453f2edf96f7f30f00b5b78519
                 // Think: Does it perform a subtraction to check for equality?
                 alu_op     = 2'b01; // "Force a subtraction"
             end
