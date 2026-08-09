@@ -1,5 +1,5 @@
 # ==============================================================================
-# PROGRAM: In-Place Selection Sort
+# PROGRAM: Selection Sort
 # TARGET CORE: RV32I Processor Core
 #
 # HARDWARE EXPECTATIONS / PRELOADED DATA MEMORY (data_mem.sv):
