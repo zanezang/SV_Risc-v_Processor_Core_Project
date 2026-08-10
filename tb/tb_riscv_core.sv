@@ -94,7 +94,7 @@ module tb_riscv_core;
     // 6. GTKWAVE VCD WAVEFORM GENERATOR
     // ==========================================
     initial begin
-        $dumpfile("cpu_simulation.vcd");
+        $dumpfile("waves.vcd");
         $dumpvars(0, tb_riscv_core);
     end
 

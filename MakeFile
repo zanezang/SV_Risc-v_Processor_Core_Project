@@ -8,7 +8,7 @@ FLAGS     = -g2012
 RTL_SRCS  = rtl/*.sv
 TB_SRC    = tb/tb_riscv_core.sv
 SIM_OUT   = cpu_sim
-WAVE_FILE = cpu_simulation.vcd
+WAVE_FILE = waves.vcd
 
 # Declare phony targets (targets that aren't actual physical files)
 .PHONY: all compile run waves clean
@@ -24,9 +24,9 @@ compile: $(RTL_SRCS) $(TB_SRC)
 run: compile
 	vvp $(SIM_OUT)
 
-# Target 3: Launch GTKWave viewer to inspect signal traces
+# Target 3: Launch GTKWave view,er to inspect signal traces
 waves: run
-	gtkwave $(WAVE_FILE) &
+	surfer $(WAVE_FILE) &
 
 # Target 4: Remove compiled binaries and waveform logs
 clean:

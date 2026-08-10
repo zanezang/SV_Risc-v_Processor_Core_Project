@@ -105,7 +105,7 @@ The core is verified using an automated SystemVerilog testbench (`tb_riscv_core.
 ### Prerequisites
 
 * **Icarus Verilog (`iverilog`)**: HDL Compiler & Simulator Engine
-* **GTKWave**: Waveform Trace Viewer
+* **Surfer**: Waveform Trace Viewer
 
 ### Simulation Commands
 
@@ -113,7 +113,7 @@ The core is verified using an automated SystemVerilog testbench (`tb_riscv_core.
 # 1. Compile RTL + Testbench and run simulation
 make
 
-# 2. Open GTKWave to inspect signal traces (.vcd)
+# 2. Open Surfer to inspect signal traces (.vcd)
 make waves
 
 # 3. Clean generated binaries and trace logs
