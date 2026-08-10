@@ -46,7 +46,7 @@ The core follows a classic single-cycle datapath architecture where every instru
 ```text
 riscv-rv32i-core/
 ├── asm/                        # Assembly Programs
-│   └── SelectionSort.s
+│   └── SelectionSort.asm
 ├── hex/                        # Machine Code (Loaded via $readmemh)
 │   └── SelectionSort.hex
 ├── rtl/                        # Synthesizable SystemVerilog RTL Modules
@@ -72,7 +72,7 @@ riscv-rv32i-core/
 
 ## 🧪 Verification: In-Place Selection Sort
 
-The core is verified using an automated SystemVerilog testbench (`tb_riscv_core.sv`) running an in-place **Selection Sort assembly program** (`asm/selection_sort.s`). The program reads an unsorted array from Data Memory, sorts the elements in-place, and outputs the result upon completion.
+The core is verified using an automated SystemVerilog testbench (`tb_riscv_core.sv`) running an in-place **Selection Sort assembly program** (`asm/SelectionSort.asm`). The program reads an unsorted array from Data Memory, sorts the elements in-place, and outputs the result upon completion.
 
 ### Simulation Terminal Output
 
