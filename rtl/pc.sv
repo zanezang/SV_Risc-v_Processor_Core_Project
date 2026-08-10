@@ -8,12 +8,10 @@ module program_counter (
   // 'always_ff' creates physical D-Flip-Flop registers
   always_ff @(posedge clk or negedge rst_n) begin
     if (!rst_n) begin
-      // TODO: When reset hits, your CPU must boot up at address 0.
       // Clear pc_out to a 32-bit zero literal.
       pc_out <= 32'b0;
       
     end else begin
-      // TODO: On the rising edge of the clock, latch the calculated
       // next address into your memory register.
       pc_out <= pc_next;
     end

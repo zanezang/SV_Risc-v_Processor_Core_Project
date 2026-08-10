@@ -17,10 +17,10 @@ module riscv_core (
 
     // Control Unit Output Signals
     logic       reg_write;
-    logic       alu_src;        // Fixed: Changed from 2-bit to 1-bit
+    logic       alu_src;
     logic       mem_write;
     logic [1:0] reg_write_src;  // 00 = ALU, 01 = RAM, 10 = PC+4
-    logic [1:0] pc_src;         // Fixed: Added missing pc_src routing bus
+    logic [1:0] pc_src;
     logic       branch;
     logic [3:0] alu_ctrl;
 
@@ -36,7 +36,7 @@ module riscv_core (
     logic [31:0] alu_operand_b;
     logic [31:0] alu_result;
     logic        alu_zero;
-    logic        alu_less;      // Added for BLT/BGE comparisons
+    logic        alu_less;
 
     // Data Memory Wires
     logic [31:0] mem_read_data;
@@ -79,7 +79,7 @@ module riscv_core (
         .alu_src       (alu_src),
         .mem_write     (mem_write),
         .reg_write_src (reg_write_src),
-        .pc_src        (pc_src),        // Connected pc_src
+        .pc_src        (pc_src),
         .branch        (branch),
         .alu_ctrl      (alu_ctrl)
     );

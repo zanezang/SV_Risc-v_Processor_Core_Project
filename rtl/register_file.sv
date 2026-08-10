@@ -14,11 +14,6 @@ module register_file (
   logic [31:0] rf [0:31];
 
   // --- READ PORTS (Pure Combinational Logic) ---
-  // TODO: Implement the absolute law of Register 0 using a ternary operator.
-  // If raddr1 is pointing to 5'b00000, force read_data1 to output a clean 32-bit zero.
-  // Otherwise, extract rf[raddr1]. Repeat the exact same rule for read_data2.
-  
-  // WRITE YOUR READ OPERATORS HERE:
   assign read_data1 = (raddr1 == 5'b00000) ? 32'b0 : rf[raddr1];
   assign read_data2 = (raddr2 == 5'b00000) ? 32'b0 : rf[raddr2];
 
@@ -26,22 +21,13 @@ module register_file (
   // --- WRITE PORT (Clocked Sequential Logic) ---
   always_ff @(posedge clk or negedge rst_n) begin
     if (!rst_n) begin
-      // Optional: Clear registers on reset loop (skipping index 0 since it's hawaddrwired)
       for (int i = 1; i < 32; i++) begin
         rf[i] <= 32'h0000_0000;
       end
-    end else begin
-      // TODO: Implement the write logic path.
-      // A write occurs ONLY IF:
-      //   1. 'reg_write' is asserted high AND
-      //   2. The target destination register 'waddr' is NOT register 0.
-      // Remember to use a non-blocking assignment (<=) to update the array cell.
-      
-      // WRITE YOUR WRITE LOGIC HERE:
+    end else begin     
       if (write_data && waddr != 5'b0) begin 
         rf[waddr] <= write_data;
       end
-
     end
   end
 
