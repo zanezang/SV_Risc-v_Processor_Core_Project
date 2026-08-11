@@ -13,7 +13,7 @@ WAVE_FILE = waves.vcd
 # Declare phony targets (targets that aren't actual physical files)
 .PHONY: all compile run waves clean
 
-# Default target executed when typing just 'make'
+# Default target
 all: run
 
 # Target 1: Compile SystemVerilog design and testbench
@@ -24,7 +24,7 @@ compile: $(RTL_SRCS) $(TB_SRC)
 run: compile
 	vvp $(SIM_OUT)
 
-# Target 3: Launch GTKWave view,er to inspect signal traces
+# Target 3: Launch GTKWave viewer to inspect signal traces
 waves: run
 	surfer $(WAVE_FILE) &
 
