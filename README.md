@@ -47,6 +47,8 @@ The core follows a classic single-cycle datapath architecture where every instru
 riscv-rv32i-core/
 ├── asm/                        # Assembly Programs
 │   └── SelectionSort.asm
+├── docs/                       # Diagrams and Waveform Screenshots
+│   └── waveform.png
 ├── hex/                        # Machine Code (Loaded via $readmemh)
 │   └── SelectionSort.hex
 ├── rtl/                        # Synthesizable SystemVerilog RTL Modules
@@ -60,8 +62,6 @@ riscv-rv32i-core/
 │   └── riscv_core.sv
 ├── tb/                         # Verification Testbenches
 │   └── tb_riscv_core.sv
-├── docs/                       # Diagrams and Waveform Screenshots
-│   └── waveform.png
 ├── .gitignore                  # Filters binaries (*.vcd, cpu_sim)
 ├── Makefile                    # Build & Simulation Automation
 └── README.md                   # Project Documentation
