@@ -1,16 +1,3 @@
-# ============================================================
-# test_alu.S
-#
-# Purpose:
-#   Test the ALU-related instructions of the RISC-V CPU.
-#
-# Instructions to test:
-#   ADD, SUB, AND, OR, XOR, SLT
-#
-# Expected results will be stored in registers.
-# The SystemVerilog testbench will check those registers.
-# ============================================================
-
 .text
 .globl _start
 
