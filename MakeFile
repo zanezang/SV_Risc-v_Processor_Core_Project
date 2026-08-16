@@ -88,4 +88,3 @@ clean:
 	rm -f tests/bin/test_alu.o
 	rm -f tests/bin/test_alu.elf
 	rm -f tests/bin/test_alu.bin
-	rm -f tests/hex/test_alu.hex
