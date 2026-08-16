@@ -25,7 +25,7 @@ HEX_DIR   = tests/hex
 TOOLS_DIR = tests/tools
 TB_DIR    = tb
 
-SIM_OUT   = cpu_sim
+SIM_OUT   = riscv_core_sim
 WAVE_FILE = waves.vcd
 
 # ------------------------------------------------------------------------------
@@ -41,7 +41,7 @@ WAVE_FILE = waves.vcd
 all: run
 
 # ------------------------------------------------------------------------------
-# Default CPU simulation
+# Default simulation using test_riscv_core.asm (Selection Sort)
 # ------------------------------------------------------------------------------
 
 compile: $(RTL_SRCS) $(TB_DIR)/tb_riscv_core.sv $(HEX_DIR)/test_riscv_core.hex
