@@ -1,6 +1,6 @@
 `timescale 1ns/1ps
 
-module tb_alu;
+module tb_imm;
 
     logic clk;
     logic rst_n;

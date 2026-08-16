@@ -1,6 +1,6 @@
 `timescale 1ns/1ps
 
-module tb_branch;
+module tb_jal;
 
     logic clk;
     logic rst_n;
