@@ -65,7 +65,7 @@ module tb_alu;
             $display("PASS: SLTI");
 
         $display("----------------------------");
-        $display("ALU TEST COMPLETE");
+        $display("IMMEDIATE TEST COMPLETE");
         $display("----------------------------");
 
         $finish;
