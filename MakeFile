@@ -17,7 +17,7 @@ OBJCOPY  = riscv64-elf-objcopy
 # Directories / Files
 # ------------------------------------------------------------------------------
 
-RTL_SRCS = rtl/*.sv
+RTL_SRCS  = rtl/*.sv
 
 ASM_DIR   = tests/asm
 BIN_DIR   = tests/bin
@@ -29,31 +29,28 @@ SIM_OUT   = cpu_sim
 WAVE_FILE = waves.vcd
 
 # ------------------------------------------------------------------------------
-# Phony targets
+# Phony
 # ------------------------------------------------------------------------------
 
 .PHONY: all compile run waves clean FORCE
 
-all: test_riscv_core
-
-# FORCE is used so `make test_X` always runs the simulation
-FORCE:
-
 # ------------------------------------------------------------------------------
-# Default processor test
+# Default
 # ------------------------------------------------------------------------------
 
-test_riscv_core: FORCE $(HEX_DIR)/test_riscv_core.hex
+all: run
+
+# ------------------------------------------------------------------------------
+# Default CPU simulation
+# ------------------------------------------------------------------------------
+
+compile: $(RTL_SRCS) $(TB_DIR)/tb_riscv_core.sv $(HEX_DIR)/test_riscv_core.hex
 	$(SIMULATOR) $(FLAGS) \
-		-o riscv_core_sim \
+		-o $(SIM_OUT) \
 		$(RTL_SRCS) \
 		$(TB_DIR)/tb_riscv_core.sv
-	vvp riscv_core_sim
 
-compile: $(RTL_SRCS) tb/tb_riscv_core.sv
-	$(SIMULATOR) $(FLAGS) -o $(SIM_OUT) $(RTL_SRCS) tb/tb_riscv_core.sv
-
-run: compile
+run: compile 
 	vvp $(SIM_OUT)
 
 waves: run
@@ -88,15 +85,7 @@ $(HEX_DIR)/%.hex: $(BIN_DIR)/%.bin
 	python3 $(TOOLS_DIR)/bin_to_hex.py $< $@
 
 # ------------------------------------------------------------------------------
-# Generic test target
-#
-# Example:
-#   make test_alu
-#   make test_imm
-#
-# This automatically:
-#   test_alu → tests/hex/test_alu.hex → tb/tb_alu.sv
-#   test_imm → tests/hex/test_imm.hex → tb/tb_imm.sv
+# Generic Unit Tests
 # ------------------------------------------------------------------------------
 
 test_%: FORCE $(HEX_DIR)/test_%.hex
@@ -107,13 +96,19 @@ test_%: FORCE $(HEX_DIR)/test_%.hex
 	vvp $*_sim
 
 # ------------------------------------------------------------------------------
+# Force
+# ------------------------------------------------------------------------------
+
+FORCE:
+
+# ------------------------------------------------------------------------------
 # Clean
 # ------------------------------------------------------------------------------
 
 clean:
 	rm -f $(SIM_OUT)
-	rm -f $(WAVE_FILE)
 	rm -f *_sim
+	rm -f $(WAVE_FILE)
 	rm -f $(BIN_DIR)/*.o
 	rm -f $(BIN_DIR)/*.elf
 	rm -f $(BIN_DIR)/*.bin
