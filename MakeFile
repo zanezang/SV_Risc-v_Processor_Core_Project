@@ -2,32 +2,90 @@
 # RISC-V RV32I Processor Core Makefile
 # ==============================================================================
 
-# 1. Variables / Configuration Macros
+# ------------------------------------------------------------------------------
+# Variables / Configuration
+# ------------------------------------------------------------------------------
+
 SIMULATOR = iverilog
 FLAGS     = -g2012
 RTL_SRCS  = rtl/*.sv
+
+# Original Selection Sort test
 TB_SRC    = tb/tb_riscv_core.sv
 SIM_OUT   = cpu_sim
 WAVE_FILE = waves.vcd
 
-# Declare phony targets (targets that aren't actual physical files)
-.PHONY: all compile run waves clean
+# ALU unit test
+ALU_TB    = tb/tb_alu.sv
+ALU_SIM   = alu_sim
+ALU_ASM   = tests/asm/test_alu.asm
+ALU_BIN   = tests/bin/test_alu.bin
+ALU_HEX   = tests/hex/test_alu.hex
 
+RISCV_AS  = riscv64-elf-as
+RISCV_LD  = riscv64-elf-ld
+OBJCOPY   = riscv64-elf-objcopy
+
+# ------------------------------------------------------------------------------
+# Phony targets
+# ------------------------------------------------------------------------------
+
+.PHONY: all compile run waves test_alu clean
+
+# ------------------------------------------------------------------------------
 # Default target
+# ------------------------------------------------------------------------------
+
 all: run
 
-# Target 1: Compile SystemVerilog design and testbench
-compile: $(RTL_SRCS) $(TB_SRC)
-	$(SIMULATOR) $(FLAGS) -o $(SIM_OUT) $(RTL_SRCS) $(TB_SRC)  
+# ------------------------------------------------------------------------------
+# Original processor test
+# ------------------------------------------------------------------------------
 
-# Target 2: Run VVP simulator engine
+compile: $(RTL_SRCS) $(TB_SRC)
+	$(SIMULATOR) $(FLAGS) -o $(SIM_OUT) $(RTL_SRCS) $(TB_SRC)
+
 run: compile
 	vvp $(SIM_OUT)
 
-# Target 3: Launch GTKWave viewer to inspect signal traces
 waves: run
 	surfer $(WAVE_FILE) &
 
-# Target 4: Remove compiled binaries and waveform logs
+# ------------------------------------------------------------------------------
+# ALU Unit Test
+# ------------------------------------------------------------------------------
+
+test_alu:
+	$(RISCV_AS) -march=rv32i -mabi=ilp32 \
+		-o tests/bin/test_alu.o \
+		$(ALU_ASM)
+
+	$(RISCV_LD) -m elf32lriscv -Ttext=0x0 \
+		-o tests/bin/test_alu.elf \
+		tests/bin/test_alu.o
+
+	$(OBJCOPY) -O binary \
+		tests/bin/test_alu.elf \
+		$(ALU_BIN)
+
+	python3 tests/tools/bin_to_hex.py \
+		$(ALU_BIN) \
+		$(ALU_HEX)
+
+	$(SIMULATOR) $(FLAGS) \
+		-o $(ALU_SIM) \
+		$(RTL_SRCS) \
+		$(ALU_TB)
+
+	vvp $(ALU_SIM)
+
+# ------------------------------------------------------------------------------
+# Clean
+# ------------------------------------------------------------------------------
+
 clean:
-	rm -f $(SIM_OUT) $(WAVE_FILE)
+	rm -f $(SIM_OUT) $(ALU_SIM) $(WAVE_FILE)
+	rm -f tests/bin/test_alu.o
+	rm -f tests/bin/test_alu.elf
+	rm -f tests/bin/test_alu.bin
+	rm -f tests/hex/test_alu.hex
