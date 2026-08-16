@@ -1,122 +1,197 @@
 # 32-Bit Single-Cycle RISC-V (RV32I) Processor Core
 
-A synthesizable, single-cycle 32-bit RISC-V CPU core designed in **SystemVerilog** implementing the base **RV32I Instruction Set Architecture (ISA)**. 
+A **32-bit single-cycle RISC-V processor core** designed in **SystemVerilog**, implementing the base **RV32I ISA**.
 
-The core has been verified in **Icarus Verilog** by running a custom, in-place **Selection Sort assembly program** that executes across 200+ clock cycles in simulation.
+**Verified** through targeted instruction-level tests and an integrated Selection Sort test written in RISC-V Assembly.
 
----
+The project includes a modular datapath, parameterized instruction memory, **automated RISC-V assembly-to-HEX generation**, and a **Makefile-driven simulation and verification** workflow.
 
-## 🏛️ Architecture Overview
-The core follows a classic single-cycle datapath architecture where every instruction fetches, decodes, executes, accesses memory, and writes back within a single clock cycle ($20\text{ ns}$ at $50\text{ MHz}$).
+
+## Architecture
 
 ```text
-[ Program Counter ] ---> [ Instruction Mem ] ---> [ Control / ALU Decoder ]
-         |                                                 |
-         v                                                 v
-[ Register File (32x32) ] ---> [ Immediate Gen ] ---> [ ALU Engine ]
-         |                                                 |
-         +-------------------------------------------------+ ---> [ Data RAM ]
-
+                    ┌──────────────────┐
+                    │ Program Counter  │
+                    └────────┬─────────┘
+                             │
+                             ▼
+                    ┌──────────────────┐
+                    │ Instruction Mem  │
+                    └────────┬─────────┘
+                             │
+                             ▼
+                    ┌──────────────────┐
+                    │    Controller    │
+                    └────────┬─────────┘
+                             │
+             ┌───────────────┼───────────────┐
+             ▼               ▼               ▼
+      ┌─────────────┐ ┌─────────────┐ ┌─────────────┐
+      │ Register    │ │ Immediate   │ │ Branch /    │
+      │ File        │ │ Generator   │ │ Jump Logic  │
+      └──────┬──────┘ └──────┬──────┘ └──────┬──────┘
+             └───────────────┼───────────────┘
+                             ▼
+                       ┌───────────┐
+                       │    ALU    │
+                       └─────┬─────┘
+                             │
+                    ┌────────┴────────┐
+                    ▼                 ▼
+             ┌─────────────┐   ┌─────────────┐
+             │ Data Memory │-->│  Writeback  │
+             └─────────────┘   └─────────────┘
 ```
 
-### Key Hardware Features
+## Supported RV32I Instructions
 
-* **Data Path:** 32-bit internal buses formatted in Little-Endian.
-* **Register File:** 32 general-purpose 32-bit registers (`x0` hardwired to `0`).
-* **ALU Engine:** Supports arithmetic (`ADD`, `SUB`), logical (`AND`, `OR`, `XOR`), bitwise shifts (`SLL`, `SRL`, `SRA`), and signed/unsigned comparison (`SLT`, `SLTU`).
-* **Control Logic:** Decodes opcodes, `funct3`, and `funct7` bits to steer register writebacks, immediate selection, and branch/jump routing.
-* **Immediate Generator:** Extends sign bits across I-Type, S-Type, B-Type, U-Type, and J-Type formats.
-* **Memory Subsystem:** Word-aligned instruction and data memory units (`pc[31:2]` index conversion).
+| Type | Instructions                                           |
+| ---- | ------------------------------------------------------ |
+| R    | `ADD SUB AND OR XOR SLL SRL SRA SLT SLTU`              |
+| I    | `ADDI ANDI ORI XORI SLLI SRLI SRAI SLTI SLTIU LW JALR` |
+| S    | `SW`                                                   |
+| B    | `BEQ BNE BLT BGE BLTU BGEU`                            |
+| U    | `LUI AUIPC`                                            |
+| J    | `JAL`                                                  |
 
----
+## Verification
 
-## ⚙️ Supported Instruction Set
+The core is verified using both **targeted instruction-level tests** and an **integration test**.
 
-* **R-Type:** `add`, `sub`, `and`, `or`, `xor`, `sll`, `srl`, `sra`, `slt`, `sltu`
-* **I-Type:** `addi`, `andi`, `ori`, `xori`, `slli`, `srli`, `srai`, `slti`, `sltiu`, `lw`, `jalr`
-* **S-Type:** `sw`
-* **B-Type:** `beq`, `bne`, `blt`, `bge`, `bltu`, `bgeu`
-* **U-Type:** `lui`, `auipc`
-* **J-Type:** `jal`
+| Test              | Coverage                   |
+| ----------------- | -------------------------- |
+| `test_alu`        | ALU operations             |
+| `test_imm`        | Immediate operations       |
+| `test_data_mem`   | Load/store and data memory |
+| `test_branch`     | Conditional branches       |
+| `test_jal`        | `JAL`                      |
+| `test_jalr`       | `JALR`                     |
+| `test_riscv_core` | Full processor integration |
 
----
+### Full Processor Integration Test 
 
-## 📂 Repository Structure
+A custom RISC-V assembly program performs an in-place Selection Sort using the processor's datapath, register file, ALU, branches, and data memory.
 
 ```text
-riscv-rv32i-core/
-├── asm/                        # Assembly Programs
-│   └── SelectionSort.asm
-├── docs/                       # Diagrams and Waveform Screenshots
-│   └── waveform.png
-├── hex/                        # Machine Code (Loaded via $readmemh)
-│   └── SelectionSort.hex
-├── rtl/                        # Synthesizable SystemVerilog RTL Modules
+Input:    [7, -3, 24, 3, 20, -1]
+Expected: [-3, -1, 3, 7, 20, 24]
+```
+
+The SystemVerilog testbench verifies the final contents of data memory.
+
+```text
+[ STATUS ]: *** PASSED *** Array successfully sorted in-place!
+```
+
+> The instruction set above describes the implemented RV32I functionality. Not every implemented instruction currently has an individual dedicated test; some are also exercised through the integration program.
+
+## Automated Test Flow
+
+Assembly tests are automatically converted into machine-code HEX files:
+
+```text
+.asm → .o → .elf → .bin → .hex → simulation
+```
+
+For example:
+
+```bash
+make test_jalr
+```
+
+automatically builds and runs:
+
+```text
+tests/asm/test_jalr.asm
+        ↓
+tests/bin/test_jalr.*
+        ↓
+tests/hex/test_jalr.hex
+        ↓
+tb/tb_jalr.sv
+```
+
+## Repository Structure
+
+```text
+.
+├── Makefile                    # Build, assembly conversion, and simulation automation
+├── README.md                   # Project documentation
+├── docs/
+│   └── waveform.png            # Example simulation waveform
+├── rtl/                        # Synthesizable SystemVerilog RTL
 │   ├── alu.sv
 │   ├── control_unit.sv
 │   ├── data_mem.sv
 │   ├── imm_gen.sv
-│   ├── instruction_mem.sv
-│   ├── program_counter.sv
+│   ├── instru_mem.sv
+│   ├── pc.sv
 │   ├── register_file.sv
-│   └── riscv_core.sv
-├── tb/                         # Verification Testbenches
-│   └── tb_riscv_core.sv
-├── .gitignore                  # Filters binaries (*.vcd, cpu_sim)
-├── Makefile                    # Build & Simulation Automation
-└── README.md                   # Project Documentation
-
+│   └── riscv_core.sv           # Top-level CPU module
+├── tb/                         # SystemVerilog verification testbenches
+│   ├── tb_alu.sv
+│   ├── tb_branch.sv
+│   ├── tb_data_mem.sv
+│   ├── tb_imm.sv
+│   ├── tb_jal.sv
+│   ├── tb_jalr.sv
+│   └── tb_riscv_core.sv        # End-to-end Selection Sort test
+└── tests/
+    ├── asm/                    # RISC-V assembly test programs
+    ├── bin/                    # Generated object, ELF, and binary files
+    ├── hex/                    # Generated machine-code HEX files
+    └── tools/                  # Test/build utilities
+        └── bin_to_hex.py       # Converts binary machine code to HEX
 ```
 
----
+## Tools
 
-## 🧪 Verification: In-Place Selection Sort
+* **SystemVerilog** — RTL and verification
+* **Icarus Verilog** — simulation
+* **RISC-V GNU Toolchain** — assembly and binary generation
+* **Python** — binary-to-HEX conversion
+* **Surfer** — waveform viewing
+* **Make** — build and test automation
 
-The core is verified using an automated SystemVerilog testbench (`tb_riscv_core.sv`) running an in-place **Selection Sort assembly program** (`asm/SelectionSort.asm`). The program reads an unsorted array from Data Memory, sorts the elements in-place, and outputs the result upon completion.
+## Running
 
-### Simulation Terminal Output
-
-```text
-==========================================================================
-          STARTING RISC-V CORE SELECTION SORT VERIFICATION                
-==========================================================================
-[25 ns] Reset released. Core executing program from PC = 0x00000000...
-==========================================================================
-                       SIMULATION COMPLETE                                
-==========================================================================
- Memory Address | Array Index | Data Value | Expected Value 
- ---------------|-------------|------------|----------------
-   0x04 (RAM[1]) |   Array[0]  | -3         | -3
-   0x08 (RAM[2]) |   Array[1]  | -1         | -1
-   0x0C (RAM[3]) |   Array[2]  | 3          | 3
-   0x10 (RAM[4]) |   Array[3]  | 7          | 7
-   0x14 (RAM[5]) |   Array[4]  | 20         | 20
-   0x18 (RAM[6]) |   Array[5]  | 24         | 24
---------------------------------------------------------------------------
- [ STATUS ]: *** PASSED *** Array successfully sorted in-place!
-==========================================================================
-
-```
-
----
-
-## 🚀 How to Run the Simulation
-
-### Prerequisites
-
-* **Icarus Verilog (`iverilog`)**: HDL Compiler & Simulator Engine
-* **Surfer**: Waveform Trace Viewer
-
-### Simulation Commands
+### Run the default Selection Sort test
 
 ```bash
-# 1. Compile RTL + Testbench and run simulation
 make
+```
 
-# 2. Open Surfer to inspect signal traces (.vcd)
+### Compile only
+
+```bash
+make compile
+```
+
+### Compile and run
+
+```bash
+make run
+```
+
+### Run an individual test
+
+```bash
+make test_alu
+make test_imm
+make test_data_mem
+make test_branch
+make test_jal
+make test_jalr
+```
+
+### Open waveforms
+
+```bash
 make waves
+```
 
-# 3. Clean generated binaries and trace logs
+### Clean generated files
+
+```bash
 make clean
-
 ```
