@@ -4,7 +4,7 @@ A **32-bit single-cycle RISC-V processor core** designed in **SystemVerilog**, i
 
 **Verified** through targeted instruction-level tests and an integrated Selection Sort test written in RISC-V Assembly.
 
-The project includes a modular datapath, parameterized instruction memory, **automated RISC-V assembly-to-HEX generation**, and a **Makefile-driven simulation and verification** workflow.
+The project includes a modular datapath, parameterized instruction memory, **automated RISC-V assembly-to-HEX generation**, and a **Makefile for simulation and verification** workflow.
 
 
 ## Architecture
