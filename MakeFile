@@ -3,47 +3,55 @@
 # ==============================================================================
 
 # ------------------------------------------------------------------------------
-# Variables / Configuration
+# Tools
 # ------------------------------------------------------------------------------
 
 SIMULATOR = iverilog
 FLAGS     = -g2012
-RTL_SRCS  = rtl/*.sv
 
-# Original Selection Sort test
-TB_SRC    = tb/tb_riscv_core.sv
+RISCV_AS = riscv64-elf-as
+RISCV_LD = riscv64-elf-ld
+OBJCOPY  = riscv64-elf-objcopy
+
+# ------------------------------------------------------------------------------
+# Directories / Files
+# ------------------------------------------------------------------------------
+
+RTL_SRCS = rtl/*.sv
+
+ASM_DIR   = tests/asm
+BIN_DIR   = tests/bin
+HEX_DIR   = tests/hex
+TOOLS_DIR = tests/tools
+TB_DIR    = tb
+
 SIM_OUT   = cpu_sim
 WAVE_FILE = waves.vcd
-
-# ALU unit test
-ALU_TB    = tb/tb_alu.sv
-ALU_SIM   = alu_sim
-ALU_ASM   = tests/asm/test_alu.asm
-ALU_BIN   = tests/bin/test_alu.bin
-ALU_HEX   = tests/hex/test_alu.hex
-
-RISCV_AS  = riscv64-elf-as
-RISCV_LD  = riscv64-elf-ld
-OBJCOPY   = riscv64-elf-objcopy
 
 # ------------------------------------------------------------------------------
 # Phony targets
 # ------------------------------------------------------------------------------
 
-.PHONY: all compile run waves test_alu clean
+.PHONY: all compile run waves clean FORCE
+
+all: test_riscv_core
+
+# FORCE is used so `make test_X` always runs the simulation
+FORCE:
 
 # ------------------------------------------------------------------------------
-# Default target
+# Default processor test
 # ------------------------------------------------------------------------------
 
-all: run
+test_riscv_core: FORCE $(HEX_DIR)/test_riscv_core.hex
+	$(SIMULATOR) $(FLAGS) \
+		-o riscv_core_sim \
+		$(RTL_SRCS) \
+		$(TB_DIR)/tb_riscv_core.sv
+	vvp riscv_core_sim
 
-# ------------------------------------------------------------------------------
-# Original processor test
-# ------------------------------------------------------------------------------
-
-compile: $(RTL_SRCS) $(TB_SRC)
-	$(SIMULATOR) $(FLAGS) -o $(SIM_OUT) $(RTL_SRCS) $(TB_SRC)
+compile: $(RTL_SRCS) tb/tb_riscv_core.sv
+	$(SIMULATOR) $(FLAGS) -o $(SIM_OUT) $(RTL_SRCS) tb/tb_riscv_core.sv
 
 run: compile
 	vvp $(SIM_OUT)
@@ -52,39 +60,61 @@ waves: run
 	surfer $(WAVE_FILE) &
 
 # ------------------------------------------------------------------------------
-# ALU Unit Test
+# Assembly → Object
 # ------------------------------------------------------------------------------
 
-test_alu:
-	$(RISCV_AS) -march=rv32i -mabi=ilp32 \
-		-o tests/bin/test_alu.o \
-		$(ALU_ASM)
+$(BIN_DIR)/%.o: $(ASM_DIR)/%.asm
+	$(RISCV_AS) -march=rv32i -mabi=ilp32 -o $@ $<
 
-	$(RISCV_LD) -m elf32lriscv -Ttext=0x0 \
-		-o tests/bin/test_alu.elf \
-		tests/bin/test_alu.o
+# ------------------------------------------------------------------------------
+# Object → ELF
+# ------------------------------------------------------------------------------
 
-	$(OBJCOPY) -O binary \
-		tests/bin/test_alu.elf \
-		$(ALU_BIN)
+$(BIN_DIR)/%.elf: $(BIN_DIR)/%.o
+	$(RISCV_LD) -m elf32lriscv -Ttext=0x0 -o $@ $<
 
-	python3 tests/tools/bin_to_hex.py \
-		$(ALU_BIN) \
-		$(ALU_HEX)
+# ------------------------------------------------------------------------------
+# ELF → Binary
+# ------------------------------------------------------------------------------
 
+$(BIN_DIR)/%.bin: $(BIN_DIR)/%.elf
+	$(OBJCOPY) -O binary $< $@
+
+# ------------------------------------------------------------------------------
+# Binary → Hex
+# ------------------------------------------------------------------------------
+
+$(HEX_DIR)/%.hex: $(BIN_DIR)/%.bin
+	python3 $(TOOLS_DIR)/bin_to_hex.py $< $@
+
+# ------------------------------------------------------------------------------
+# Generic test target
+#
+# Example:
+#   make test_alu
+#   make test_imm
+#
+# This automatically:
+#   test_alu → tests/hex/test_alu.hex → tb/tb_alu.sv
+#   test_imm → tests/hex/test_imm.hex → tb/tb_imm.sv
+# ------------------------------------------------------------------------------
+
+test_%: FORCE $(HEX_DIR)/test_%.hex
 	$(SIMULATOR) $(FLAGS) \
-		-o $(ALU_SIM) \
+		-o $*_sim \
 		$(RTL_SRCS) \
-		$(ALU_TB)
-
-	vvp $(ALU_SIM)
+		$(TB_DIR)/tb_$*.sv
+	vvp $*_sim
 
 # ------------------------------------------------------------------------------
 # Clean
 # ------------------------------------------------------------------------------
 
 clean:
-	rm -f $(SIM_OUT) $(ALU_SIM) $(WAVE_FILE)
-	rm -f tests/bin/test_alu.o
-	rm -f tests/bin/test_alu.elf
-	rm -f tests/bin/test_alu.bin
+	rm -f $(SIM_OUT)
+	rm -f $(WAVE_FILE)
+	rm -f *_sim
+	rm -f $(BIN_DIR)/*.o
+	rm -f $(BIN_DIR)/*.elf
+	rm -f $(BIN_DIR)/*.bin
+	rm -f $(HEX_DIR)/*.hex
