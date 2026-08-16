@@ -1,4 +1,6 @@
-module instruction_mem (
+module instruction_mem #(
+    parameter HEX_FILE
+) (
     input  logic [31:0] pc_addr,
     output logic [31:0] instruction
 );
@@ -8,7 +10,7 @@ module instruction_mem (
 
     // Read the compiled machine code text file automatically at simulation startup
     initial begin
-        $readmemh("hex/SelectionSort.hex", mem_array);
+        $readmemh(HEX_FILE, mem_array);
     end
 
     // Word-addressing alignment layout: 

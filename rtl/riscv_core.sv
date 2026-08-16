@@ -1,4 +1,6 @@
-module riscv_core (
+module riscv_core #(
+    parameter HEX_FILE
+) (
     input logic clk,
     input logic rst_n
 );
@@ -64,7 +66,9 @@ module riscv_core (
 
 
     // --- Instruction Memory ---
-    instruction_mem u_instruction_mem (
+    instruction_mem #(
+        .HEX_FILE(HEX_FILE)
+    ) u_instruction_mem (
         .pc_addr     (pc_current),
         .instruction (inst)
     );
