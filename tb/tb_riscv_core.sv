@@ -12,7 +12,7 @@ module tb_riscv_core;
     // 2. INSTANTIATE CPU CORE
     // ==========================================
     riscv_core #(
-        .HEX_FILE("tests/hex/SelectionSort.hex")
+        .HEX_FILE("tests/hex/test_riscv_core.hex")
     ) uut (
         .clk   (clk),
         .rst_n (rst_n)
